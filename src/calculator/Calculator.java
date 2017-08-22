@@ -1,105 +1,40 @@
 package calculator;
 
+import javax.swing.JOptionPane;
+import com.fathzer.soft.javaluator.DoubleEvaluator;
+
 public class Calculator {
-    public enum BiOperatorModes {
-        NORMAL, ADD, MINUS, MULTIPLY, DIVIDE, POWER
-    }
-
-    public enum MonoOperatorModes {
-        SQUARE, SQUAREROOT, ONEDIVIDEDBY, COS, SIN, TAN, FACT
-    }
-
-    private Double num1, num2;
-    private BiOperatorModes mode = BiOperatorModes.NORMAL;
-
-    private Double calculateBiImpl() {
-    	switch (mode) {
-    		case NORMAL:
-    			return num2;
-    			
-    		case ADD:
-    			return num1 + num2;
-    			
-    		case MINUS:
-    			return num1 - num2;
-    			
-    		case MULTIPLY:
-    			return num1 * num2;
-    			
-    		case DIVIDE:
-    			return num1 / num2;
-    			
-    		case POWER:
-    			return Math.pow(num1, num2);
-    					
-    		// never reach
-    		default: throw new Error();
+	
+	public String evaluate(String expression, CalcGUI calcGUI) {
+		
+		Double result = null;
+		String resultString = "";
+		
+		try {
+			
+			for (int i = 0; i < expression.length(); i++) {
+    			if (expression.charAt(i) == 'π') {
+    				expression = expression.replace("π", "3.14159265359") ;
+    			}
+    		}
+			
+    		for (int i = 0; i < expression.length(); i++) {
+    			if (expression.charAt(i) == '(' && Character.isDigit(expression.charAt(i-1))) {
+    				expression = new StringBuilder(expression).insert(i, "*").toString();
+    			}
+    		}		
+    		result = new DoubleEvaluator().evaluate(expression);//Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+    	} catch(IllegalArgumentException e) {
+    		JOptionPane.showMessageDialog(calcGUI, "Error In Expression!\nPlease Check And Try Again");
+    		
     	}
-    }
-
-    public Double calculateBi(BiOperatorModes newMode, Double num) {
-        if (mode == BiOperatorModes.NORMAL) {
-            num2 = 0.0;
-            num1 = num;
-            mode = newMode;
-            return Double.NaN;
+		
+		if (Double.isNaN(result)) {
+            return "0.0";
         } else {
-            num2 = num;
-            num1 = calculateBiImpl();
-            mode = newMode;
-            return num1;
+            resultString = Double.toString(result);
         }
-    }
-
-    public Double calculateEqual(Double num) {
-        return calculateBi(BiOperatorModes.NORMAL, num);
-    }
-
-    public Double reset() {
-        num2 = 0.0;
-        num1 = 0.0;
-        mode = BiOperatorModes.NORMAL;
-
-        return Double.NaN;
-    }
-
-    public Double calculateMono(MonoOperatorModes newMode, Double num) {
-    	switch (newMode) {
-    		case SQUARE:
-    			return num * num;
-    			
-    		case SQUAREROOT:
-    			return Math.sqrt(num);
-    			
-    		case ONEDIVIDEDBY:
-    			return 1 / num;
-    			
-    		case COS:
-    			return Math.cos(num);
-    			
-    		case SIN:
-    			return Math.sin(num);
-    			
-    		case TAN:
-    			return Math.tan(num);
-    			
-    		case FACT:
-    			return factorial(num);
-
-    		// never reach	
-    		default: throw new Error();
-    	}
-    }
-
-	private Double factorial(Double num) {
-		if (num == 0) {
-            return (double) 1;
-        }
-        double fact = 1; // this  will be the result
-        for (int i = 1; i <= num; i++) {
-            fact *= i;
-        }
-        return fact;
+		
+		return resultString;
 	}
-
 }

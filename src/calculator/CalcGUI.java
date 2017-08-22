@@ -12,9 +12,6 @@ import javax.swing.LayoutStyle;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -22,12 +19,8 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
-
-import com.fathzer.soft.javaluator.DoubleEvaluator;
-import com.fathzer.soft.javaluator.StaticVariableSet;
-
+import javax.swing.plaf.PanelUI;
 import java.awt.event.ActionListener;
-import java.awt.geom.Line2D;
 import java.text.DecimalFormat;
 import java.awt.event.ActionEvent;
 
@@ -36,20 +29,29 @@ public class CalcGUI extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	
     private JTextArea text;
-    private JButton but[], butAdd, butMinus, butMultiply, butDivide,
-    butEquals, butSquareRoot, butSquare, butOneDevidedBy,
-    butCos, butSin, butTan, butPeriod, butFactorial, butCarrot, butGraph, butRightParen, butLeftParen,
-    butArea, butSolve, butX, butRadian;
+    private JScrollPane jScrollPane1;
+    private JTextField base, circleArea, circumference, diagonal, diameter, height, perimeter, radius, rectangleArea, sideA, sideB, triangleArea;
+    private JButton but[], butAdd, butMinus, butMultiply, butDivide, butEquals, butSquareRoot, butCos, butSin, butTan, butPeriod, butRightParen, butLeftParen,
+    butPi, butCarrot, butGraph, butPlot, butClear, butArea, beginArea, butSolve, butX, butRadian, calcCircle, calcRectangle, calcTriangle, 
+    exitBut1, exitBut2, exitBut3, exitBut4, exitBut5;
+    private ButtonGroup buttonGroup1;
+    private JRadioButton circleRBut, rectangleRBut, triangleRBut;
+    private JLabel baseLabel, chooseLabel, circleAreaLabel, circleLabel, circumLabel, diagLabel, diameterLabel, heightLabel, 
+    perimeterLabel, radiusLabel, rectAreaLabel, rectangleLabel, sideALabel, sideBLabel, triAreaLabel, triangleLabel, textLabel;
+    private JPanel areaPanels, blankPanel, buttonPanel, circlePanel, displayPanel, graphPanel, rectanglePanel, trianglePanel;
     private final String[] buttonValue = { "0", "1", "2", "3", "4", "5", "6",
             "7", "8", "9" };
     private Boolean degrees = true;
+    private Boolean textFlag = false;
     protected Calculator calc;
     private Graph graph;
+    SpecialOpps convert;
 
     public CalcGUI() {
     	initComponents();
     	//initialize controller
     	calc = new Calculator();
+    	convert = new SpecialOpps();
     }
 
     /**
@@ -57,6 +59,8 @@ public class CalcGUI extends JFrame implements ActionListener {
 	 * addActionListeners
      */                         
     private void initComponents() {
+    	
+    	setTitle("Graphing Calculator");
     	
     	but = new JButton[10];
         for (int i = 0; i < 10; i++) {
@@ -109,6 +113,7 @@ public class CalcGUI extends JFrame implements ActionListener {
         buttonPanel = new JPanel();
         jScrollPane1 = new JScrollPane();
         text = new JTextArea();
+        textLabel = new javax.swing.JLabel("f(x) =");
         
         beginArea = new JButton("Begin");
         beginArea.addActionListener(new ActionListener() {
@@ -169,7 +174,7 @@ public class CalcGUI extends JFrame implements ActionListener {
         butSquareRoot = new JButton("Sqrt");
         butSquareRoot.addActionListener(this);
         
-        butClear = new JButton("Clear");
+        butClear = new JButton("AC");
         butClear.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 butClearActionPerformed(evt);
@@ -195,7 +200,7 @@ public class CalcGUI extends JFrame implements ActionListener {
         butMinus = new JButton("-");
         butMinus.addActionListener(this);
         
-        butX = new JButton("X");
+        butX = new JButton("x");
         butX.addActionListener(this);
         
         butMultiply = new JButton("*");
@@ -213,17 +218,17 @@ public class CalcGUI extends JFrame implements ActionListener {
         butRightParen = new JButton(")");
         butRightParen.addActionListener(this);
         
-        butSin = new JButton("Sin");
+        butSin = new JButton("sin");
         butSin.addActionListener(this);
         
-        butCos = new JButton("Cos");
+        butCos = new JButton("cos");
         butCos.addActionListener(this);
         
-        butTan = new JButton("Tan");
+        butTan = new JButton("tan");
         butTan.addActionListener(this);
         
-        butFactorial = new JButton("!");
-        butFactorial.addActionListener(this);
+        butPi = new JButton("π");
+        butPi.addActionListener(this);
         
         exitBut1 = new JButton("Exit");
         exitBut1.addActionListener(new ActionListener() {
@@ -600,7 +605,7 @@ public class CalcGUI extends JFrame implements ActionListener {
                             .addComponent(butCos, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(butSin, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(butRightParen, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(butFactorial, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(butPi, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(butDivide, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
@@ -650,7 +655,7 @@ public class CalcGUI extends JFrame implements ActionListener {
                     .addComponent(butEquals, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     .addComponent(but[0])
                     .addComponent(butPeriod)
-                    .addComponent(butFactorial))
+                    .addComponent(butPi))
                 .addContainerGap())
         );
 
@@ -670,7 +675,231 @@ public class CalcGUI extends JFrame implements ActionListener {
         );
 
         pack();
-    }// </editor-fold>                        
+    }// </editor-fold> 
+    
+    private void altTextArea() {
+    	if(textFlag) {
+    		buttonPanel.setUI(new PanelUI(){
+            });
+            javax.swing.GroupLayout buttonPanelLayout = new javax.swing.GroupLayout(buttonPanel);
+            buttonPanel.setLayout(buttonPanelLayout);
+            buttonPanelLayout.setHorizontalGroup(
+                buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, buttonPanelLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(buttonPanelLayout.createSequentialGroup()
+                            .addComponent(textLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 382, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(buttonPanelLayout.createSequentialGroup()
+                            .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(butArea, javax.swing.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
+                                .addComponent(butRadian, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butSquareRoot, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butClear, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butSolve, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butGraph, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(buttonPanelLayout.createSequentialGroup()
+                                    .addGap(18, 18, 18)
+                                    .addComponent(butAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, buttonPanelLayout.createSequentialGroup()
+                                    .addGap(18, 18, 18)
+                                    .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(butCarrot, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(but[1], javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(but[7], javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(but[4], javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(butEquals, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(but[5], javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(but[2], javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(butX, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(butMinus, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(but[8], javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(but[0], javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(butLeftParen, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(but[3], javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(but[6], javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(but[9], javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(butPeriod, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(butMultiply, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(18, 18, 18)
+                            .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(butTan, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butCos, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butSin, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butRightParen, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butPi, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butDivide, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addContainerGap())
+            );
+            buttonPanelLayout.setVerticalGroup(
+                    buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(buttonPanelLayout.createSequentialGroup()
+                        .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(buttonPanelLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(buttonPanelLayout.createSequentialGroup()
+                                .addGap(15, 15, 15)
+                                .addComponent(textLabel)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(butGraph, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(butAdd, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(butMinus)
+                            .addComponent(butMultiply)
+                            .addComponent(butDivide))
+                        .addGap(18, 18, 18)
+                        .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(butArea)
+                            .addComponent(butCarrot, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(butX)
+                            .addComponent(butLeftParen)
+                            .addComponent(butRightParen))
+                        .addGap(18, 18, 18)
+                        .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(butRadian, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(but[1], javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(but[2])
+                            .addComponent(but[3])
+                            .addComponent(butSin))
+                        .addGap(18, 18, 18)
+                        .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(butSquareRoot)
+                            .addComponent(but[4], javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(but[5])
+                            .addComponent(but[6])
+                            .addComponent(butCos))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                        .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(butClear, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(but[7], javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(but[8])
+                            .addComponent(but[9])
+                            .addComponent(butTan))
+                        .addGap(18, 18, 18)
+                        .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(butSolve, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(butEquals, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(but[0])
+                            .addComponent(butPeriod)
+                            .addComponent(butPi))
+                        .addContainerGap())
+                );
+    	} else {
+    		buttonPanel.setUI(new PanelUI(){
+            });
+            GroupLayout buttonPanelLayout = new GroupLayout(buttonPanel);
+            buttonPanel.setLayout(buttonPanelLayout);
+            buttonPanelLayout.setHorizontalGroup(
+                buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addGroup(buttonPanelLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addComponent(jScrollPane1)
+                        .addGroup(buttonPanelLayout.createSequentialGroup()
+                            .addGroup(buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                .addComponent(butArea, GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
+                                .addComponent(butRadian, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butSquareRoot, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butClear, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butSolve, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butGraph, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                .addGroup(buttonPanelLayout.createSequentialGroup()
+                                    .addGap(18, 18, 18)
+                                    .addComponent(butAdd, GroupLayout.PREFERRED_SIZE, 60, GroupLayout.PREFERRED_SIZE))
+                                .addGroup(GroupLayout.Alignment.TRAILING, buttonPanelLayout.createSequentialGroup()
+                                    .addGap(18, 18, 18)
+                                    .addGroup(buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addComponent(butCarrot, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 60, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(but[1], GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 60, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(but[7], GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 60, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(but[4], GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 60, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(butEquals, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 60, GroupLayout.PREFERRED_SIZE))))
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                .addComponent(but[5], GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(but[2], GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(butX, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(butMinus, GroupLayout.PREFERRED_SIZE, 60, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(but[8], GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(but[0], GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE))
+                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                .addComponent(butLeftParen, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(but[3], GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(but[6], GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(but[9], GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(butPeriod, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 1, Short.MAX_VALUE)
+                                .addComponent(butMultiply, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 64, GroupLayout.PREFERRED_SIZE))
+                            .addGap(18, 18, 18)
+                            .addGroup(buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                .addComponent(butTan, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butCos, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butSin, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butRightParen, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butPi, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(butDivide, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addContainerGap())
+            );
+            buttonPanelLayout.setVerticalGroup(
+                buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addGroup(buttonPanelLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(jScrollPane1, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addGroup(buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(butGraph, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(butAdd, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(butMinus)
+                        .addComponent(butMultiply)
+                        .addComponent(butDivide))
+                    .addGap(18, 18, 18)
+                    .addGroup(buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(butArea)
+                        .addComponent(butCarrot, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(butX)
+                        .addComponent(butLeftParen)
+                        .addComponent(butRightParen))
+                    .addGap(18, 18, 18)
+                    .addGroup(buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(butRadian, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(but[1], GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(but[2])
+                        .addComponent(but[3])
+                        .addComponent(butSin))
+                    .addGap(18, 18, 18)
+                    .addGroup(buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(butSquareRoot)
+                        .addComponent(but[4], GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(but[5])
+                        .addComponent(but[6])
+                        .addComponent(butCos))
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                    .addGroup(buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(butClear, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(but[7], GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(but[8])
+                        .addComponent(but[9])
+                        .addComponent(butTan))
+                    .addGap(18, 18, 18)
+                    .addGroup(buttonPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(butSolve, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(butEquals, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(but[0])
+                        .addComponent(butPeriod)
+                        .addComponent(butPi))
+                    .addContainerGap())
+            );
+    	}
+    }
 
     private void beginAreaActionPerformed(ActionEvent evt) {                                          
         if (circleRBut.isSelected()) {
@@ -872,82 +1101,77 @@ public class CalcGUI extends JFrame implements ActionListener {
 
         for (int i = 0; i < 10; i++) {
             if (source == but[i]) {
-                text.replaceSelection(buttonValue[i]);
+            	writer(buttonValue[i]);
                 return;
             }
         }
 
 		if (source == butAdd) {
-            writer(calc.calculateBi(Calculator.BiOperatorModes.ADD, reader()));
+            writer("+");
         }
 
         if (source == butMinus) {
-            writer(calc.calculateBi(Calculator.BiOperatorModes.MINUS, reader()));
+            writer("-");
         }
 
         if (source == butMultiply) {
-            writer(calc.calculateBi(Calculator.BiOperatorModes.MULTIPLY,
-                reader()));
+            writer("*");
         }
 
         if (source == butDivide) {
-            writer(calc
-                .calculateBi(Calculator.BiOperatorModes.DIVIDE, reader()));
+            writer("/");
+        }
+        
+        if (source == butLeftParen) {
+            writer("(");
+        }
+        
+        if (source == butRightParen) {
+            writer(")");
+        }
+        
+        if (source == butPeriod) {
+            writer(".");
+        }
+        
+        if (source == butX) {
+            writer("x");
         }
         
         if (source == butCarrot) {
-            writer(calc.calculateBi(Calculator.BiOperatorModes.POWER, reader()));
-        }
-
-        if (source == butSquare) {
-            writer(calc.calculateMono(Calculator.MonoOperatorModes.SQUARE,
-                reader()));
+            writer("^");
         }
 
         if (source == butSquareRoot) {
-            writer(calc.calculateMono(Calculator.MonoOperatorModes.SQUAREROOT,
-                reader()));
-        }
-
-        if (source == butOneDevidedBy) {
-            writer(calc.calculateMono(
-                    Calculator.MonoOperatorModes.ONEDIVIDEDBY, reader()));
+            writer("√(");
+            
         }
 
         if (source == butCos) {
-        	if (degrees) {
-        		writer(calc.calculateMono(Calculator.MonoOperatorModes.COS, Math.toRadians(reader())));
-        	} else {
-        		writer(calc.calculateMono(Calculator.MonoOperatorModes.COS, reader()));
-        	}
+        	writer("cos(");
         }
 
         if (source == butSin) {
-        	if (degrees) {
-        		writer(calc.calculateMono(Calculator.MonoOperatorModes.SIN, Math.toRadians(reader())));
-        	} else {
-        		writer(calc.calculateMono(Calculator.MonoOperatorModes.SIN, reader()));
-        	}
+        	text.append("sin(");
         }
 
         if (source == butTan) {
-        	if (degrees) {
-        		writer(calc.calculateMono(Calculator.MonoOperatorModes.TAN, Math.toRadians(reader())));
-        	} else {
-        		writer(calc.calculateMono(Calculator.MonoOperatorModes.TAN, reader()));
-        	}
+        	writer("tan(");
         }
 
-        if (source == butFactorial) {
-            writer(calc.calculateMono(Calculator.MonoOperatorModes.FACT,
-                reader()));
+        if (source == butPi) {
+            writer("π");
         }
         
         if (source == butEquals) {
-            writer(calc.calculateEqual(reader()));
+        	String input = reader();
+        	if (degrees && input.contains("sin") || input.contains("cos") || input.contains("tan"))
+        		input = convert.degToRad(input);
+        	if (input.contains("√"))
+        		input = convert.squareRoot(input);
+        	text.setText(calc.evaluate(input, this));
         }
         
-        text.selectAll();
     }                                   
 
     private void butGraphActionPerformed(ActionEvent evt) {
@@ -955,51 +1179,12 @@ public class CalcGUI extends JFrame implements ActionListener {
         graphPanel.add(graph);
     	CardLayout card = (CardLayout)displayPanel.getLayout();
         card.show(displayPanel, "graphPanel");
+        textFlag = true;
+        altTextArea();
     }    
     
-    private void butPlotActionPerformed(ActionEvent evt) {
-    	Graphics g = graphPanel.getGraphics();
-    	Graphics2D g2 = (Graphics2D) g;
-    	System.out.println(this.getSize().width);
-    	System.out.println(this.getSize().height);
-    	g2.draw(new Line2D.Double(110, 110, 222.5, 0));
-    	g2.draw(new Line2D.Double(222.5, 0, 332.5, 110));
-    	
-/**    	String expression = text.getText();
-    	
-    	try {
-    		for (int i = 0; i < expression.length(); i++) {
-    			if (expression.charAt(i) == '(' && Character.isDigit(expression.charAt(i-1))) {
-    				expression = new StringBuilder(expression).insert(i, "*").toString();
-    			}
-    		}		
-    		Double result = new DoubleEvaluator().evaluate(expression);//Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
-    		writer(result);
-    	} catch(IllegalArgumentException e) {
-    		for (int i = 0; i < expression.length(); i++) {
-    			if (Character.isLetter(expression.charAt(i)) && Character.isDigit(expression.charAt(i-1))) {
-    				expression = new StringBuilder(expression).insert(i, "*").toString();
-    			}
-    		}
-    		// Create the evaluator
-            final DoubleEvaluator eval = new DoubleEvaluator();
-            // Create a new empty variable set
-            final StaticVariableSet<Double> variables = new StaticVariableSet<Double>();
-            double x = 0;
-            final double step = 1;
-            while (x<=10) {
-            	// Set the value of x
-            	variables.set("x", x);
-            	// Evaluate the expression
-            	Double result = eval.evaluate(expression, variables);
-            	// Ouput the result
-            	System.out.println("x="+x+" -> "+expression+" = "+result);
-            	x += step;
-            }
-    	}
-**/
-    	
-		
+    private void butPlotActionPerformed(ActionEvent evt) {   	 	
+		graph.drawPoints(reader());
     }
 
     private void butAreaActionPerformed(ActionEvent evt) {
@@ -1018,11 +1203,16 @@ public class CalcGUI extends JFrame implements ActionListener {
     }                                                                             
 
     private void butSolveActionPerformed(ActionEvent evt) {                                         
-        writer(calc.calculateEqual(reader()));
+    	String input = reader();
+    	if (degrees && input.contains("sin") || input.contains("cos") || input.contains("tan"))
+    		input = convert.degToRad(input);
+    	if (input.contains("√"))
+    		input = convert.squareRoot(input);
+    	text.setText(calc.evaluate(input, this));
     }  
     
     private void butClearActionPerformed(ActionEvent evt) {                                         
-        writer(calc.reset());
+        text.setText("");
         radius.setText("");
         diameter.setText("");
         circumference.setText("");
@@ -1035,31 +1225,27 @@ public class CalcGUI extends JFrame implements ActionListener {
         perimeter.setText("");
         base.setText("");
         height.setText("");
+        graphPanel.updateUI();
     }    
     
     private void butExitActionPerformed(ActionEvent evt) {
     	CardLayout card = (CardLayout)displayPanel.getLayout();
         card.show(displayPanel, "blankPanel");
         text.setText("");
+        textFlag = false;
+        altTextArea();
     }
 
-    public Double reader() {
-        Double num;
+    public String reader() {
         String str;
         str = text.getText();
-        num = Double.valueOf(str);
 
-        return num;
+        return str.toLowerCase();
     }
 
-    public void writer(final Double num) {
-        if (Double.isNaN(num)) {
-            text.setText("");
-        } else {
-            text.setText(Double.toString(num));
-        }
+    public void writer(String s) {
+    	text.append(s);
     }
-    
     
     public static void main(String args[]) {
         
@@ -1086,60 +1272,5 @@ public class CalcGUI extends JFrame implements ActionListener {
             }
         });
     }
-
-    // Variables declaration                     
-    private JPanel areaPanels;
-    private JTextField base;
-    private JLabel baseLabel;
-    private JButton beginArea;
-    private JPanel blankPanel;
-    private JButton butClear;
-    private ButtonGroup buttonGroup1;
-    private JPanel buttonPanel;
-    private JButton calcCircle;
-    private JButton calcRectangle;
-    private JButton calcTriangle;
-    private JLabel chooseLabel;
-    private JTextField circleArea;
-    private JLabel circleAreaLabel;
-    private JLabel circleLabel;
-    private JPanel circlePanel;
-    private JRadioButton circleRBut;
-    private JLabel circumLabel;
-    private JTextField circumference;
-    private JLabel diagLabel;
-    private JTextField diagonal;
-    private JTextField diameter;
-    private JLabel diameterLabel;
-    private JPanel displayPanel;
-    private JPanel graphPanel;
-    private JTextField height;
-    private JLabel heightLabel;
-    private JScrollPane jScrollPane1;
-    private JTextField perimeter;
-    private JLabel perimeterLabel;
-    private JTextField radius;
-    private JLabel radiusLabel;
-    private JLabel rectAreaLabel;
-    private JTextField rectangleArea;
-    private JLabel rectangleLabel;
-    private JPanel rectanglePanel;
-    private JRadioButton rectangleRBut;
-    private JTextField sideA;
-    private JLabel sideALabel;
-    private JTextField sideB;
-    private JLabel sideBLabel;
-    private JLabel triAreaLabel;
-    private JTextField triangleArea;
-    private JLabel triangleLabel;
-    private JPanel trianglePanel;
-    private JRadioButton triangleRBut;
-    private JButton butPlot;
-    private JButton exitBut1;
-    private JButton exitBut2;
-    private JButton exitBut3;
-    private JButton exitBut4;
-    private JButton exitBut5;
     
-    // End of variables declaration                   
 }
